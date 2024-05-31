@@ -10,25 +10,25 @@ const path = require("path");
 const fs = require("fs");
 const url = require("url");
 const Job = require("../models/job");
+const Poll = require("../models/poll")
 
 const postRoutes = express.Router();
 
-
 const mergeSortAndPaginate = async (page, size) => {
-  const skip = (page - 1) * size; // Calculates the total number of records to skip based on the page and size
+  const skip = (page - 1) * size;
 
+ 
   const allPosts = await Post.find().sort({ createdAt: -1 });
   const allJobs = await Job.find().sort({ createdAt: -1 });
-
-  const combinedRecords = [...allPosts, ...allJobs]
+  const allPolls = await Poll.find().sort({ createdAt: -1 });
+ 
+  const combinedRecords = [...allPosts, ...allJobs, ...allPolls]
     .sort((a, b) => b.createdAt - a.createdAt)
-    .slice(0, skip + size); // Retrieves all records up to the current page's end
+    .slice(0, skip + size); 
 
-  const paginatedRecords = combinedRecords.slice(skip, skip + size); // Retrieves records for the current page
-
+  const paginatedRecords = combinedRecords.slice(skip, skip + size); 
   return paginatedRecords;
 };
-
 
 
 
@@ -121,12 +121,13 @@ postRoutes.get('/', async (req, res) => {
 
     const totalPost = await Post.countDocuments();
     const totalJob = await Job.countDocuments();
+    const totalPoll = await Poll.countDocuments();
 
     const combinedRecords = await mergeSortAndPaginate(page, size);
 
     res.json({
       records: combinedRecords,
-      total: totalPost+totalJob,
+      total: totalPost+totalJob+totalPoll,
       size,
       page,
     });

@@ -1,6 +1,10 @@
 const mongoose = require("mongoose");
 
 const pollSchema = new mongoose.Schema({
+  userId: String,
+  userName: String,
+  profilePicture: String,
+  type: String,
   question: {
     type: String,
     required: true,
@@ -10,7 +14,13 @@ const pollSchema = new mongoose.Schema({
       option: {
         type: String,
       },
-      votes: [String],
+      votes: [
+        {
+          userId: String,
+          userName: String,
+          profilePicture: String
+        }
+      ],
     },
   ],
 }, { timestamps: true });
