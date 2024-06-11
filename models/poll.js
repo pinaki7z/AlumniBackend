@@ -9,6 +9,7 @@ const pollSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
+  groupID: String,
   options: [
     {
       option: {

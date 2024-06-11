@@ -23,6 +23,8 @@ const forumSchema = new mongoose.Schema({
   title: String,
   userId: String,
   description: String,
+  profilePicture: String,
+  userName: String,
   blockedUserIds: [{
     userId: String,
     content: String,

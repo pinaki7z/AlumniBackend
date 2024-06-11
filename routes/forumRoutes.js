@@ -18,6 +18,8 @@ forumRoutes.post("/createForum", async (req, res) => {
     type,
     department,
     members,
+    profilePicture,
+    userName
   } = req.body;
 
   try {
@@ -36,6 +38,8 @@ forumRoutes.post("/createForum", async (req, res) => {
       department,
       members: [userId],
       video,
+      profilePicture,
+      userName,
       totalTopics: 0,
       type,
       comment: type === "Public" ? true : false,

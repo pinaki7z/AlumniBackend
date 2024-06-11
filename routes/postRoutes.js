@@ -32,7 +32,18 @@ const mergeSortAndPaginate = async (page, size) => {
 
 
 
-
+const mergeSortAndPaginateUser = async (page,size,id) => {
+  const skip = (page - 1) * size;
+  const allPosts = await Post.find({ userId: id }).sort({ createdAt: -1 });
+  const allJobs = await Job.find({ userId: id }).sort({ createdAt: -1 });
+  const allPolls = await Poll.find({ userId: id } ).sort({ createdAt: -1 });
+  const totalPosts = allPosts + allJobs + allPolls;
+  const combinedRecords = [...allPosts, ...allJobs, ...allPolls]
+    .sort((a, b) => b.createdAt - a.createdAt)
+    .slice(0, skip + size); 
+    const paginatedRecords = combinedRecords.slice(skip, skip + size); 
+    return {paginatedRecords, totalPosts};
+}
 
 
 
@@ -309,6 +320,28 @@ postRoutes.delete("/:_id/comments/:comment_id", async (req, res) => {
     res.status(200).json(updatedPost);
   } catch (err) {
     res.status(500).json({ message: err.message });
+  }
+});
+
+postRoutes.get("/userPosts/:_id", async (req, res) => {
+  const { _id } = req.params;
+  const size = parseInt(req.query.size) || 4; 
+  const page = parseInt(req.query.page) || 1; 
+
+  try {
+    const { paginatedRecords, totalPosts } = await mergeSortAndPaginateUser(page,size,_id);
+
+    res.status(200).json({
+      records: paginatedRecords,
+      total: totalPosts,
+      size,
+      page,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message
+    });
   }
 });
 

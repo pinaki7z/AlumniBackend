@@ -4,7 +4,7 @@ const Poll = require("../models/poll");
 const pollRoutes = express.Router();
 
 pollRoutes.post("/createPoll", async (req, res) => {
-  const { userId, question, userName, options, profilePicture } = req.body;
+  const { userId, question, userName, options, profilePicture,groupID } = req.body;
 
   if (!question || !options) {
     return res
@@ -20,6 +20,7 @@ pollRoutes.post("/createPoll", async (req, res) => {
       options,
       type: "poll",
       profilePicture,
+      groupID
     });
 
     const savedPoll = await newPoll.save();
