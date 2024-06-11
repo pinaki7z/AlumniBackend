@@ -5,7 +5,7 @@ const Poll = require('../models/poll');
 const pollRoutes = express.Router();
 
 
-pollRoutes.post('/createPoll', auth, async (req, res) => {
+pollRoutes.post('/createPoll', async (req, res) => {
     const { userId, description, department, profilePicture, pollQuestion, pollOptions, groupID } = req.body;
   
     if (!pollQuestion || !pollOptions || pollOptions.length < 2) {
