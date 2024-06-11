@@ -10,29 +10,40 @@ const path = require("path");
 const fs = require("fs");
 const url = require("url");
 const Job = require("../models/job");
+const Poll = require("../models/poll")
 
 const postRoutes = express.Router();
 
-
 const mergeSortAndPaginate = async (page, size) => {
-  const skip = (page - 1) * size; // Calculates the total number of records to skip based on the page and size
+  const skip = (page - 1) * size;
 
+ 
   const allPosts = await Post.find().sort({ createdAt: -1 });
   const allJobs = await Job.find().sort({ createdAt: -1 });
-
-  const combinedRecords = [...allPosts, ...allJobs]
+  const allPolls = await Poll.find().sort({ createdAt: -1 });
+ 
+  const combinedRecords = [...allPosts, ...allJobs, ...allPolls]
     .sort((a, b) => b.createdAt - a.createdAt)
-    .slice(0, skip + size); // Retrieves all records up to the current page's end
+    .slice(0, skip + size); 
 
-  const paginatedRecords = combinedRecords.slice(skip, skip + size); // Retrieves records for the current page
-
+  const paginatedRecords = combinedRecords.slice(skip, skip + size); 
   return paginatedRecords;
 };
 
 
 
-
-
+const mergeSortAndPaginateUser = async (page,size,id) => {
+  const skip = (page - 1) * size;
+  const allPosts = await Post.find({ userId: id }).sort({ createdAt: -1 });
+  const allJobs = await Job.find({ userId: id }).sort({ createdAt: -1 });
+  const allPolls = await Poll.find({ userId: id } ).sort({ createdAt: -1 });
+  const totalPosts = allPosts + allJobs + allPolls;
+  const combinedRecords = [...allPosts, ...allJobs, ...allPolls]
+    .sort((a, b) => b.createdAt - a.createdAt)
+    .slice(0, skip + size); 
+    const paginatedRecords = combinedRecords.slice(skip, skip + size); 
+    return {paginatedRecords, totalPosts};
+}
 
 
 
@@ -121,12 +132,13 @@ postRoutes.get('/', async (req, res) => {
 
     const totalPost = await Post.countDocuments();
     const totalJob = await Job.countDocuments();
+    const totalPoll = await Poll.countDocuments();
 
     const combinedRecords = await mergeSortAndPaginate(page, size);
 
     res.json({
       records: combinedRecords,
-      total: totalPost+totalJob,
+      total: totalPost+totalJob+totalPoll,
       size,
       page,
     });
@@ -308,6 +320,28 @@ postRoutes.delete("/:_id/comments/:comment_id", async (req, res) => {
     res.status(200).json(updatedPost);
   } catch (err) {
     res.status(500).json({ message: err.message });
+  }
+});
+
+postRoutes.get("/userPosts/:_id", async (req, res) => {
+  const { _id } = req.params;
+  const size = parseInt(req.query.size) || 4; 
+  const page = parseInt(req.query.page) || 1; 
+
+  try {
+    const { paginatedRecords, totalPosts } = await mergeSortAndPaginateUser(page,size,_id);
+
+    res.status(200).json({
+      records: paginatedRecords,
+      total: totalPosts,
+      size,
+      page,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message
+    });
   }
 });
 

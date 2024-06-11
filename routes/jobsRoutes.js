@@ -57,6 +57,7 @@ jobRoutes.post("/create", upload.array("attachments", 5), async (req, res) => {
       company,
       location,
       type,
+      userName,
       locationType
     } = req.body;
 
@@ -84,7 +85,8 @@ jobRoutes.post("/create", upload.array("attachments", 5), async (req, res) => {
         archive: false,
         starred: [],
         approved: false,
-        locationType
+        locationType,
+        userName
       });
 
       const savedJob = await newJob.save();
@@ -132,6 +134,7 @@ jobRoutes.post("/create", upload.array("attachments", 5), async (req, res) => {
         archive: false,
         starred: [],
         approved: false,
+        userName
       });
       const savedInternship = await newInternship.save();
 
